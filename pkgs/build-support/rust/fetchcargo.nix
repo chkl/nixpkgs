@@ -26,6 +26,7 @@ in
 , cargoUpdateHook ? ""
 , # whenever to also include the Cargo.lock in the output
   copyLockfile ? false
+, flagNoMergeSources ? false
 }:
 stdenv.mkDerivation {
   name = "${name}-vendor";
@@ -55,7 +56,13 @@ stdenv.mkDerivation {
     ${cargoUpdateHook}
 
     mkdir -p $out
-    cargo vendor $out | cargo-vendor-normalise > $CARGO_CONFIG
+    ${if flagNoMergeSources
+      then ''
+        cargo vendor --no-merge-sources $out > $CARGO_CONFIG
+        # do we need this?
+        # substituteInPlace $CARGO_CONFIG --replace "$out" "@vendor@"
+      ''
+      else "cargo vendor $out | cargo-vendor-normalise > $CARGO_CONFIG"}
     # fetchcargo used to never keep the config output by cargo vendor
     # and instead hardcode the config in ./fetchcargo-default-config.toml.
     # This broke on packages needing git dependencies, so now we keep the config.

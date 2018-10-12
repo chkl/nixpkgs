@@ -21,6 +21,7 @@
 , target ? null
 
 , cargoVendorDir ? null
+, cargoVendorNoMergeSources ? false
 , ... } @ args:
 
 assert cargoVendorDir == null -> cargoSha256 != "unset";
@@ -33,6 +34,7 @@ let
         copyLockfile = verifyCargoDeps;
         patches = cargoPatches;
         sha256 = cargoSha256;
+        flagNoMergeSources = cargoVendorNoMergeSources;
       }
     else null;
 
